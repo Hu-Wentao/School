@@ -1,4 +1,4 @@
-package test.report5;
+package src.report5;
 
 import javax.swing.*;
 import java.awt.*;
