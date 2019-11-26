@@ -15,19 +15,12 @@ class SingleLinkedList<T> {
     private Node<T> head = new Node<T>();
     private int len = 0;
 
-
     /**
-     * 尽量不要使用
-     * <p>
-     * 使用带有泛型的数组会导致堆污染，
-     * 使得后面的去除重复值方法里的equals()失效
-     *
      * @param data 传入初始值
      */
     SingleLinkedList(T... data) {
         if (data != null)
-            for (T t : data)
-                this.insert(t);
+            this.insert(data);
     }
 
     private static class Node<R> {
@@ -48,15 +41,18 @@ class SingleLinkedList<T> {
      *
      * @param data 元素
      */
-    void insert(T data) {
+    void insert(T... data) {
         if (data == null)
             return;
         Node<T> tmp = head;
         while (tmp.next != null) {
             tmp = tmp.next;
         }
-        tmp.next = new Node<T>(data);
-        len++;
+        for (T t : data) {
+            tmp.next = new Node<T>(t);
+            tmp = tmp.next;
+            len++;
+        }
     }
 
     /**
@@ -89,14 +85,15 @@ class SingleLinkedList<T> {
             return;
         for (T t : data) {
             Node<T> tmp = head;
+            if (tmp.next == null) break;
             while (!tmp.next.data.equals(t)) {
                 tmp = tmp.next;
                 if (tmp.next == null)
                     return;
             }
             tmp.next = tmp.next.next;
+            len--;
         }
-        len--;
     }
 
     /**
@@ -113,21 +110,18 @@ class SingleLinkedList<T> {
     void removeDuplicate() {
         if (len <= 1) return;
         // 开始的节点
-        Node<T> start = head.next;
-        while (start != null) {
-            Node<T> select = start;
-            Node<T> tmp = select;
+        Node<T> select = head.next;
+        while (select != null) {
             // 用 tmp.next 来表示 与select进行比较 的节点
+            Node<T> tmp = select;
             while (tmp.next != null) {
                 if (select.data.equals(tmp.next.data)) {
                     tmp.next = tmp.next.next;
-                }
-                if (tmp.next == null)
-                    break;
-                else
+                } else {
                     tmp = tmp.next;
+                }
             }
-            start = start.next;
+            select = select.next;
         }
     }
 
@@ -173,18 +167,15 @@ class SingleLinkedList<T> {
     }
 
     public static void main(String[] args) {
-        // 使用本方法构造初始值会产生堆污染，导致removeDuplicate()方法执行效果与预期不一致
-//        SingleLinkedList<Number> ss = new SingleLinkedList<>(11, 2.2f, 3.33, 4.4d, 55,55,55);
-        SingleLinkedList<Number> ss = new SingleLinkedList<>(55,55);
-//        SingleLinkedList<Number> ss = new SingleLinkedList<>();
-        ss.insert(55);
+        SingleLinkedList<Number> ss = new SingleLinkedList<>(11, 2.2f, 3.33, 4.4d, 55, 55, 55);
+        ss.insert(88, 99, 88);
         System.out.println("原始数据: " + ss + "  长度：" + ss.getLen());
 
         ss.reverse();
         System.out.println("逆序元素后：" + ss);
 
 
-        ss.remove(11, 3.33);
+        ss.remove(66, 66);
         System.out.println("移除数据项后: " + ss);
 
         ss.removeDuplicate();
@@ -195,7 +186,5 @@ class SingleLinkedList<T> {
 
         ss.removeAll();
         System.out.println("删除所有元素后：" + ss);
-
-
     }
 }
