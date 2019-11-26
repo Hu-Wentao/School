@@ -11,8 +11,14 @@ package src.structures;
  * @param <T> 节点存储的数据类型
  */
 public class DoubleLinkedList<T> {
-    private Node<T> head = new Node<T>();
     private int len = 0;
+    private Node<T> head = new Node<T>();
+    private Node<T> trail;
+
+    DoubleLinkedList(T... data) {
+        if (data != null)
+            this.insert(data);
+    }
 
     private static class Node<R> {
         R data;
@@ -25,23 +31,34 @@ public class DoubleLinkedList<T> {
         private Node(R data) {
             this.data = data;
         }
+
+        @Override
+        public String toString() {
+            return data.toString();
+        }
     }
+
 
     /**
      * 插入元素
      *
      * @param data 元素
      */
-    void insert(T data) {
+    void insert(T... data) {
         if (data == null)
             return;
         Node<T> tmp = head;
         while (tmp.next != null) {
             tmp = tmp.next;
         }
-        tmp.next = new Node<T>(data);
-        tmp.next.previous = tmp;
-        len++;
+        for (T t : data) {
+            tmp.next = new Node<>(t);
+            tmp.next.previous = tmp;
+
+            tmp = tmp.next;
+            len++;
+        }
+        trail = tmp;
     }
 
     /**
@@ -53,12 +70,14 @@ public class DoubleLinkedList<T> {
     void insert(int index, T data) {
         if (index < 0 || data == null)
             return;
+        Node<T> n = new Node<T>(data);
 
         Node<T> tmp = head;
         while (index-- > 0 && tmp.next != null) {
             tmp = tmp.next;
+            if (tmp.next == null)
+                trail = n;
         }
-        Node<T> n = new Node<T>(data);
         n.next = tmp.next;
         if (tmp.next != null)
             tmp.next.previous = n;
@@ -75,16 +94,32 @@ public class DoubleLinkedList<T> {
     void remove(T... data) {
         if (data == null)
             return;
+        boolean needResetTrail = false;
         for (T t : data) {
+            needResetTrail = t.equals(trail.data);
             Node<T> tmp = head;
+            if (tmp.next == null) break;
             while (!tmp.next.data.equals(t)) {
                 tmp = tmp.next;
                 if (tmp.next == null)
                     return;
             }
             tmp.next = tmp.next.next;
+            if (tmp.next != null)
+                tmp.next.previous = tmp;
+            len--;
         }
-        len--;
+        // 移除元素之后，需要重新扫描末尾节点，赋给trail
+        if (needResetTrail)
+            trail = getTrail();
+    }
+
+    private Node<T> getTrail() {
+        Node<T> tmp = head;
+        while (tmp.next != null) {
+            tmp = tmp.next;
+        }
+        return tmp;
     }
 
     /**
@@ -92,6 +127,7 @@ public class DoubleLinkedList<T> {
      */
     void removeAll() {
         head.next = null;
+        trail = null;
         len = 0;
     }
 
@@ -101,21 +137,18 @@ public class DoubleLinkedList<T> {
     void removeDuplicate() {
         if (len <= 1) return;
         // 开始的节点
-        Node<T> start = head.next;
-        while (start != null) {
-            Node<T> select = start;
-            Node<T> tmp = select;
+        Node<T> select = head.next;
+        while (select != null) {
             // 用 tmp.next 来表示 与select进行比较 的节点
+            Node<T> tmp = select;
             while (tmp.next != null) {
                 if (select.data.equals(tmp.next.data)) {
                     tmp.next = tmp.next.next;
-                }
-                if (tmp.next == null)
-                    break;
-                else
+                } else {
                     tmp = tmp.next;
+                }
             }
-            start = start.next;
+            select = select.next;
         }
     }
 
@@ -144,10 +177,18 @@ public class DoubleLinkedList<T> {
 
     public static void main(String[] args) {
         DoubleLinkedList<Number> ss = new DoubleLinkedList<>();
-        ss.insert(55);
-        ss.insert(55);
-        ss.insert(55);
+        ss.insert(55, 55, 23, 22, 12);
+        ss.insert(99);
+        ss.remove(99);
         System.out.println("原始数据: " + ss + "  长度：" + ss.getLen());
+
+        System.out.print("手动逆向输出: ");
+        Node t = ss.trail;
+        while (t.previous != null) {
+            System.out.printf(" %s, ", t.data);
+            t = t.previous;
+        }
+        System.out.println("\nfoot: " + ss.trail.data);
 
         ss.remove(11, 3.33);
         System.out.println("移除数据项后: " + ss);
@@ -160,7 +201,5 @@ public class DoubleLinkedList<T> {
 
         ss.removeAll();
         System.out.println("删除所有元素后：" + ss);
-
-
     }
 }
