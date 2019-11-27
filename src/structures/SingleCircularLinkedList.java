@@ -6,11 +6,10 @@ package src.structures;
  * Date : 2019-11-27
  * Time : 19:15
  * <p>
- * 单向循环链表
+ * 带头节点的单向循环链表
  */
 public class SingleCircularLinkedList<T> {
-    private Node<T> head = new Node<T>();
-    private Node<T> trail;
+    private Node<T> head = new Node<>();
     private int len = 0;
 
     /**
@@ -48,17 +47,40 @@ public class SingleCircularLinkedList<T> {
     void insert(T... data) {
         if (data == null)
             return;
-        Node<T> tmp = head;
-        while (tmp.next != null) {
-            tmp = tmp.next;
-        }
         for (T t : data) {
-            tmp.next = new Node<T>(t);
-            tmp = tmp.next;
+            Node<T> n = new Node<>(t);
+
+
+            if (head.next == null) {
+                head.next = n;
+                n.next = head;
+            } else {
+                Node<T> tmp = head.next;
+                head.next = n;
+                n.next = tmp;
+            }
             len++;
         }
-        trail = tmp;
-        trail.next = head.next;
+    }
+
+    /**
+     * 移除指定元素
+     *
+     * @param data 元素
+     */
+    void remove(T... data) {
+        if (data == null)
+            return;
+        for (T t : data) {
+            Node<T> tmp = head;
+            int cyc = len;
+            while (cyc-- > 0) {
+                if (tmp.next.data.equals(t)) {
+                    tmp.next = tmp.next.next;
+                    len--;
+                }
+            }
+        }
     }
 
     /**
@@ -77,7 +99,9 @@ public class SingleCircularLinkedList<T> {
         }
         StringBuilder sb = new StringBuilder("[ ");
         Node<T> tmp = head.next;
-        while (tmp.next != null && tmp.next.hashCode() != trail.hashCode()) {
+        int cyc = len;
+        // 因为这是带有头节点的链表
+        while (cyc-- > 1) {
             sb.append((tmp.data == null) ? "null, " : (tmp.data + ", "));
             tmp = tmp.next;
         }
@@ -86,11 +110,11 @@ public class SingleCircularLinkedList<T> {
 
     public static void main(String[] args) {
         SingleCircularLinkedList<Number> ss = new SingleCircularLinkedList<>();
-        ss.insert(55, 55, 23, 22, 12);
+        ss.insert(5, 1, 2, 3, 4);
         System.out.println("输出单向循环链表数据: " + ss + "  长度：" + ss.getLen());
 
         System.out.println("循环输出链表元素两次");
-        int i = ss.getLen() * 2;
+        int i = ss.getLen() * 3;
         Node t = ss.head.next;
         while (i-- > 0) {
             System.out.println(t.data);

@@ -1,6 +1,5 @@
 package src.structures;
 
-
 /**
  * Created by Hu Wentao.
  * Email: hu.wentao@outlook.com
@@ -23,6 +22,10 @@ class SingleLinkedList<T> {
             this.insert(data);
     }
 
+    /**
+     * 建立内部私有节点类
+     * @param <R> 范型R与本类范型T保持一致
+     */
     private static class Node<R> {
         R data;
         Node<R> next;
