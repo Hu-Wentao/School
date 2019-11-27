@@ -54,7 +54,6 @@ public class DoubleLinkedList<T> {
         for (T t : data) {
             tmp.next = new Node<>(t);
             tmp.next.previous = tmp;
-
             tmp = tmp.next;
             len++;
         }
