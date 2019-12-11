@@ -1,4 +1,4 @@
-package src.structures;
+package structures;
 
 /**
  * Created by Hu Wentao.
