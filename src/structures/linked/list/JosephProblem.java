@@ -1,4 +1,4 @@
-package structures;
+package structures.linked.list;
 
 import java.util.Arrays;
 

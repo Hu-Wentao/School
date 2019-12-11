@@ -1,28 +1,33 @@
-package structures;
+package structures.linked.list;
 
 /**
  * Created by Hu Wentao.
  * Email: hu.wentao@outlook.com
- * Date : 2019-11-26
- * Time : 21:04
+ * Date : 2019-11-22
+ * Time : 23:02
  * <p>
- * 双链表，实现插入和删除节点，输出方法
+ * 单链表，实现插入和删除节点，去重
  *
  * @param <T> 节点存储的数据类型
  */
-public class DoubleLinkedList<T> {
-    private int len = 0;
+class SingleLinkedList<T> {
     private Node<T> head = new Node<T>();
-    private Node<T> trail;
+    private int len = 0;
 
-    DoubleLinkedList(T... data) {
+    /**
+     * @param data 传入初始值
+     */
+    SingleLinkedList(T... data) {
         if (data != null)
             this.insert(data);
     }
 
+    /**
+     * 建立内部私有节点类
+     * @param <R> 范型R与本类范型T保持一致
+     */
     private static class Node<R> {
         R data;
-        Node<R> previous;
         Node<R> next;
 
         private Node() {
@@ -38,7 +43,6 @@ public class DoubleLinkedList<T> {
         }
     }
 
-
     /**
      * 插入元素
      *
@@ -52,12 +56,10 @@ public class DoubleLinkedList<T> {
             tmp = tmp.next;
         }
         for (T t : data) {
-            tmp.next = new Node<>(t);
-            tmp.next.previous = tmp;
+            tmp.next = new Node<T>(t);
             tmp = tmp.next;
             len++;
         }
-        trail = tmp;
     }
 
     /**
@@ -69,19 +71,14 @@ public class DoubleLinkedList<T> {
     void insert(int index, T data) {
         if (index < 0 || data == null)
             return;
-        Node<T> n = new Node<T>(data);
 
         Node<T> tmp = head;
         while (index-- > 0 && tmp.next != null) {
             tmp = tmp.next;
-            if (tmp.next == null)
-                trail = n;
         }
+        Node<T> n = new Node<T>(data);
         n.next = tmp.next;
-        if (tmp.next != null)
-            tmp.next.previous = n;
         tmp.next = n;
-        n.previous = tmp;
         len++;
     }
 
@@ -93,9 +90,7 @@ public class DoubleLinkedList<T> {
     void remove(T... data) {
         if (data == null)
             return;
-        boolean needResetTrail = false;
         for (T t : data) {
-            needResetTrail = t.equals(trail.data);
             Node<T> tmp = head;
             if (tmp.next == null) break;
             while (!tmp.next.data.equals(t)) {
@@ -104,21 +99,8 @@ public class DoubleLinkedList<T> {
                     return;
             }
             tmp.next = tmp.next.next;
-            if (tmp.next != null)
-                tmp.next.previous = tmp;
             len--;
         }
-        // 移除元素之后，需要重新扫描末尾节点，赋给trail
-        if (needResetTrail)
-            trail = getTrail();
-    }
-
-    private Node<T> getTrail() {
-        Node<T> tmp = head;
-        while (tmp.next != null) {
-            tmp = tmp.next;
-        }
-        return tmp;
     }
 
     /**
@@ -126,7 +108,6 @@ public class DoubleLinkedList<T> {
      */
     void removeAll() {
         head.next = null;
-        trail = null;
         len = 0;
     }
 
@@ -149,6 +130,24 @@ public class DoubleLinkedList<T> {
             }
             select = select.next;
         }
+    }
+
+    /**
+     * 逆序链表
+     */
+    void reverse() {
+        if (len <= 1) return;
+        Node<T> a, b, c, x;
+        b = head.next.next;
+        x = head.next;
+        do {
+            a = head.next;
+            c = b.next;
+            head.next = b;
+            b.next = a;
+            x.next = c;
+            b = c;
+        } while (b != null);
     }
 
     /**
@@ -175,21 +174,15 @@ public class DoubleLinkedList<T> {
     }
 
     public static void main(String[] args) {
-        DoubleLinkedList<Number> ss = new DoubleLinkedList<>();
-        ss.insert(55, 55, 23, 22, 12);
-        ss.insert(99);
-        ss.remove(99);
+        SingleLinkedList<Number> ss = new SingleLinkedList<>(11, 2.2f, 3.33, 4.4d, 55, 55, 55);
+        ss.insert(88, 99, 88);
         System.out.println("原始数据: " + ss + "  长度：" + ss.getLen());
 
-        System.out.print("手动逆向输出: ");
-        Node t = ss.trail;
-        while (t.previous != null) {
-            System.out.printf(" %s, ", t.data);
-            t = t.previous;
-        }
-        System.out.println("\nfoot: " + ss.trail.data);
+        ss.reverse();
+        System.out.println("逆序元素后：" + ss);
 
-        ss.remove(11, 3.33);
+
+        ss.remove(66, 66);
         System.out.println("移除数据项后: " + ss);
 
         ss.removeDuplicate();

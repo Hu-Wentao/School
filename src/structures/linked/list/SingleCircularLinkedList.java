@@ -1,4 +1,4 @@
-package structures;
+package structures.linked.list;
 
 /**
  * Created by Hu Wentao.
