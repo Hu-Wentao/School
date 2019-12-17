@@ -1,8 +1,5 @@
 package structures;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Hu Wentao.
@@ -11,18 +8,22 @@ import java.util.Map;
  * Time : 16:11
  */
 public class ExpressionValue {
-    private Stack<Double> operand = new Stack<>();
-    private Stack<String> operate = new Stack<>();
-    private static Map<String, Integer> compareMap = new HashMap<>();
+    private java.util.Stack<Double> operand;
+    private java.util.Stack<String> operate;
+//    private static Map<String, Integer> compareMap;
 
     public ExpressionValue() {
-        compareMap.put("+", 1);
-        compareMap.put("-", 1);
-        compareMap.put("*", 2);
-        compareMap.put("/", 2);
-        compareMap.put("(", 0);
-        compareMap.put(")", 3);
-        compareMap.put("#", -1);
+        operand = new java.util.Stack<>();
+        operate = new java.util.Stack<>();
+        operate.push("#");
+//        compareMap = new HashMap<>();
+//        compareMap.put("+", 1);
+//        compareMap.put("-", 1);
+//        compareMap.put("*", 2);
+//        compareMap.put("/", 2);
+//        compareMap.put("(", 3);
+//        compareMap.put(")", -1);
+//        compareMap.put("#", 0);
     }
 
     /**
@@ -35,7 +36,7 @@ public class ExpressionValue {
         //        String s = "#1+43*12/(2+3)";
         // 去除表达式中的空格,然后在首尾添加起止符
         expression = expression.replace(" ", "");
-        expression = "#" + expression + "#";
+        expression = expression + "#";
         // 使用正则表达式分割表达式字符串
         String[] arr = expression.split("((?<=\\+|-|\\*|/|\\(|\\)|#)|(?=\\+|-|\\*|/|\\(|\\)|#))");
         // 操作数 与 操作符 入栈
@@ -43,13 +44,18 @@ public class ExpressionValue {
 //        System.out.println(Arrays.toString(arr));
         for (String s : arr) {
             //test
-//            System.out.println("1" + operand.toString());
-//            System.out.println("2" + operate.toString());
-//            System.out.println("3" + s);
+//            System.out.println("1 " + operand.toString());
+//            System.out.println("2 " + operate.toString());
+//            System.out.println("3 " + s);
             if ("#".equals(s) && "#".equals(operate.peek())) {
                 return operand.pop().toString();
             } else if (s.matches("\\d+")) {
                 operand.push(Double.valueOf(s));
+//            } else if (")".equals(s)) {
+//                while (!operate.peek().equals("(")) {
+//                    operand.push(calc(operand.pop(), operate.pop(), operand.pop()));
+//                }
+//                operate.pop();
             } else {
                 switch (compare(operate.peek(), s)) {
                     case -1:
@@ -59,20 +65,26 @@ public class ExpressionValue {
                         operate.pop();
                         break;
                     case 1:
-
                         operand.push(calc(operand.pop(), operate.pop(), operand.pop()));
                         //test
-                        System.out.println(operand.toString());
+                        System.out.println("数值栈: " + operand.toString());
                         break;
                 }
             }
         }
-        return "";
+//        while (operate.peek()!=null) {
+//            if(operate.peek().equals("#")){
+//                operate.pop();
+//            }
+//            operand.push(calc(operand.pop(), operate.pop(), operand.pop()));
+//        }
+        return operand.pop().toString();
     }
 
     private static Double calc(Double para2, String operate, Double para1) {
         // test
-        System.out.println(para1 + " " + operate + " " + para2);
+        System.out.println("calc: " + para1 + " " + operate + " " + para2);
+
         switch (operate) {
             case "+":
                 return para1 + para2;
@@ -83,7 +95,7 @@ public class ExpressionValue {
             case "/":
                 return para1 / para2;
         }
-        return null;
+        throw new RuntimeException();
     }
 
     /**
@@ -94,9 +106,29 @@ public class ExpressionValue {
      * @return 比较大小
      */
     private int compare(String peek, String s) {
-//        System.out.println(peek + " " + s);
-        if (peek == null) return -1;
-        return compareMap.get(peek).compareTo(compareMap.get(s));
+        System.out.println(peek + " " + s);
+
+        if ("+".equals(peek) || "-".equals(peek)) {
+            if ("*".equals(s) || "/".equals(s) || "(".equals(s)) {
+                return -1;
+            }
+            return 1;
+        } else if ("*".equals(peek) || "/".equals(peek)) {
+            if ("(".equals(s)) {
+                return -1;
+            }
+            return 1;
+        } else if ("(".equals(peek)) {
+            if (")".equals(s)) {
+                return 0;
+            }
+            return -1;
+        } else if (")".equals(peek)) {
+            return 1;
+        } else {
+            if ("#".equals(s)) return 0;
+            return -1;
+        }
     }
 
 
@@ -106,7 +138,9 @@ public class ExpressionValue {
 //        String expression = sc.nextLine();
 //        System.out.println(new ExpressionValue().calcExp(expression));
 
-        String s = "2*(3+1)";
+//        String s = "2*(3+1)";
+        String s = "12+6/3-1";
+//        String s = "1*(12+6/3-1)";
 //        String s = "1+2*3+43*(12+6/3-1)";
         String[] arr = s.split("((?<=\\+|-|\\*|/|\\(|\\)|#)|(?=\\+|-|\\*|/|\\(|\\)|#))");
         System.out.println(java.util.Arrays.toString(arr));
